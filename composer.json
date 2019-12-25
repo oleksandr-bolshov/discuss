@@ -1,6 +1,7 @@
 {
     "name": "apathy/discuss",
     "description": "DB layer for Discuss project",
+    "version": "1.0.0",
     "type": "library",
     "license": "MIT",
     "authors": [
