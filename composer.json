@@ -1,6 +1,6 @@
 {
     "name": "apathy/discuss",
-    "description": "DB layer for Discuss project",
+    "description": "DB layer for your twitter-like project",
     "version": "1.0.0",
     "type": "library",
     "license": "MIT",
