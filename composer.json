@@ -35,7 +35,7 @@
     "extra": {
         "laravel": {
             "providers": [
-                "Apathy\\DiscussDb\\DiscussServiceProvider"
+                "Apathy\\Discuss\\DiscussServiceProvider"
             ]
         }
     },
