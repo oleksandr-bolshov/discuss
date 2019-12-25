@@ -1,0 +1,44 @@
+{
+    "name": "apathy/discuss",
+    "description": "DB layer for Discuss project",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Oleksandr Bolshov",
+            "email": "o.bolshov@student.csn.khai.edu"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "Apathy\\Discuss\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Apathy\\Discuss\\Tests\\": "tests/"
+        }
+    },
+    "minimum-stability": "dev",
+    "require": {
+        "php": "^7.4",
+        "illuminate/support": "^6.4",
+        "illuminate/database": "^6.4",
+        "ext-json": "*"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^8.0",
+        "fzaninotto/faker": "^1.9.0",
+        "orchestra/testbench": "^4.0"
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Apathy\\DiscussDb\\DiscussServiceProvider"
+            ]
+        }
+    },
+    "scripts": {
+        "test": "phpunit"
+    }
+}
