@@ -20,6 +20,7 @@ use Apathy\Discuss\Services\MessageService;
 use Apathy\Discuss\Services\PollService;
 use Apathy\Discuss\Services\TweetService;
 use Apathy\Discuss\Services\UserService;
+use Illuminate\Database\Eloquent\Factory;
 use Illuminate\Support\ServiceProvider;
 
 final class DiscussServiceProvider extends ServiceProvider
@@ -39,7 +40,10 @@ final class DiscussServiceProvider extends ServiceProvider
     public function boot()
     {
         $this->publishes([
-            __DIR__.'/../database/' => database_path(),
+            __DIR__.'/../database/migrations' => database_path('migrations'),
+            __DIR__.'/../database/seeds' => database_path('seeds'),
         ]);
+
+        $this->app->make(Factory::class)->load(__DIR__.'/../database/factories');
     }
 }
