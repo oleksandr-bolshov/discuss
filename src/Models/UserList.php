@@ -34,6 +34,11 @@ final class UserList extends Model
         'owner_id',
     ];
 
+    protected $casts = [
+        'members_count' => 'integer',
+        'subscribers_count' => 'integer',
+    ];
+
     public function owner(): BelongsTo
     {
         return $this->belongsTo(User::class, 'owner_id');
@@ -63,12 +68,12 @@ final class UserList extends Model
     {
         $list = new UserListResponse();
 
-        $list->id = (int) $this->id;
+        $list->id = $this->id;
         $list->title = $this->title;
         $list->description = $this->description;
         $list->owner = $this->owner->toResponse();
-        $list->membersCount = (int) $this->members_count;
-        $list->subscribersCount = (int) $this->subscribers_count;
+        $list->membersCount = $this->members_count;
+        $list->subscribersCount = $this->subscribers_count;
         $list->createdAt = $this->created_at;
         $list->updatedAt = $this->updated_at;
 

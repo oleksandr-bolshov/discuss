@@ -29,14 +29,19 @@ final class Message extends Model
         'is_read',
     ];
 
+    protected $casts = [
+        'chat_id' => 'integer',
+        'is_read' => 'boolean',
+    ];
+
     public function toResponse(): MessageResponse
     {
         $message = new MessageResponse();
 
-        $message->id = (int) $this->id;
-        $message->chatId = (int) $this->chat_id;
+        $message->id = $this->id;
+        $message->chatId = $this->chat_id;
         $message->text = $this->text;
-        $message->isRead = (bool) $this->is_read;
+        $message->isRead = $this->is_read;
         $message->createdAt = Carbon::parse($this->created_at);
 
         return $message;

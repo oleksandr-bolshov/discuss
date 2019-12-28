@@ -23,6 +23,10 @@ final class Image extends Model
         'tweet_id',
     ];
 
+    protected $casts = [
+        'tweet_id' => 'integer',
+    ];
+
     public $timestamps = false;
 
     public function toResponse(): ImageResponse

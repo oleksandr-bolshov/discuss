@@ -28,7 +28,7 @@ final class UserService implements UserServiceContract
 
     public function find(int $id): UserResponse
     {
-        return UserModel::findOrFail($id)->toResponse();
+        return UserModel::withCount('followers')->findOrFail($id)->toResponse();
     }
 
     public function paginateUsersWhoLikedByTweetId(
@@ -39,8 +39,8 @@ final class UserService implements UserServiceContract
         string $direction = self::DEFAULT_DIRECTION
     ): Paginator {
         return $this->transformPaginationItems(
-            UserModel::whereHas('likes', fn (Builder $query) => $query->where('tweet_id', $tweetId)
-            )
+            UserModel::withCount('followers')
+                ->whereHas('likes', fn (Builder $query) => $query->where('tweet_id', $tweetId))
                 ->orderBy($sort, $direction)
                 ->paginate($perPage, ['*'], null, $page)
         );
@@ -54,7 +54,8 @@ final class UserService implements UserServiceContract
         string $direction = self::DEFAULT_DIRECTION
     ): Paginator {
         return $this->transformPaginationItems(
-            UserModel::findOrFail($userId)
+            UserModel::withCount('followers')
+                ->findOrFail($userId)
                 ->followers()
                 ->orderBy($sort, $direction)
                 ->paginate($perPage, ['*'], null, $page)
@@ -69,7 +70,8 @@ final class UserService implements UserServiceContract
         string $direction = self::DEFAULT_DIRECTION
     ): Paginator {
         return $this->transformPaginationItems(
-            UserModel::findOrFail($userId)
+            UserModel::withCount('followers')
+                ->findOrFail($userId)
                 ->followings()
                 ->orderBy($sort, $direction)
                 ->paginate($perPage, ['*'], null, $page)
@@ -84,8 +86,8 @@ final class UserService implements UserServiceContract
         string $direction = self::DEFAULT_DIRECTION
     ): Paginator {
         return $this->transformPaginationItems(
-            UserModel::whereHas('listsWhereSubscriber', fn (Builder $query) => $query->whereListId($listId)
-            )
+            UserModel::withCount('followers')
+                ->whereHas('listsWhereSubscriber', fn (Builder $query) => $query->whereListId($listId))
                 ->orderBy($sort, $direction)
                 ->paginate($perPage, ['*'], null, $page)
         );
@@ -99,8 +101,8 @@ final class UserService implements UserServiceContract
         string $direction = self::DEFAULT_DIRECTION
     ): Paginator {
         return $this->transformPaginationItems(
-            UserModel::whereHas('listsWhereMember', fn (Builder $query) => $query->whereListId($listId)
-            )
+            UserModel::withCount('followers')
+                ->whereHas('listsWhereMember', fn (Builder $query) => $query->whereListId($listId))
                 ->orderBy($sort, $direction)
                 ->paginate($perPage, ['*'], null, $page)
         );

@@ -29,6 +29,11 @@ final class PollOption extends Model
         'poll_id',
     ];
 
+    protected $casts = [
+        'poll_id' => 'integer',
+        'votes_count' => 'integer',
+    ];
+
     public $timestamps = false;
 
     public function votes(): HasMany
@@ -41,8 +46,8 @@ final class PollOption extends Model
         $pollOptionResponse = new PollOptionResponse();
         $pollOptionResponse->id = $this->id;
         $pollOptionResponse->option = $this->option;
-        $pollOptionResponse->pollId = (int) $this->poll_id;
-        $pollOptionResponse->voterCount = (int) $this->votes_count;
+        $pollOptionResponse->pollId = $this->poll_id;
+        $pollOptionResponse->voterCount = $this->votes_count;
 
         return $pollOptionResponse;
     }

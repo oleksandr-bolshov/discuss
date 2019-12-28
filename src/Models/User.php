@@ -24,6 +24,7 @@ use Illuminate\Notifications\Notifiable;
  * @property string $password
  * @property string|null $profile_image
  * @property Collection $followers
+ * @property int $followers_count
  * @property Collection $followings
  * @property Carbon $created_at
  * @property Carbon $updated_at
@@ -42,6 +43,7 @@ final class User extends Authenticatable
 
     protected $casts = [
         'email_verified_at' => 'datetime',
+        'followers_count' => 'integer',
     ];
 
     public function likes(): HasMany
@@ -83,7 +85,7 @@ final class User extends Authenticatable
     {
         $user = new UserResponse();
 
-        $user->id = (int) $this->id;
+        $user->id = $this->id;
         $user->firstName = $this->first_name;
         $user->lastName = $this->last_name;
         $user->email = $this->email;
@@ -92,6 +94,10 @@ final class User extends Authenticatable
         $user->profileImage = $this->profile_image;
         $user->createdAt = $this->created_at;
         $user->updatedAt = $this->updated_at;
+
+        if ($this->followers_count) {
+            $user->followersCount = $this->followers_count;
+        }
 
         return $user;
     }

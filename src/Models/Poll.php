@@ -30,6 +30,10 @@ final class Poll extends Model
         'tweet_id',
     ];
 
+    protected $casts = [
+        'tweet_id' => 'integer',
+    ];
+
     public $timestamps = false;
 
     public function options(): HasMany
@@ -43,7 +47,7 @@ final class Poll extends Model
         $pollResponse->id = $this->id;
         $pollResponse->title = $this->title;
         $pollResponse->endDatetime = Carbon::parse($this->end_datetime);
-        $pollResponse->tweetId = (int) $this->tweet_id;
+        $pollResponse->tweetId = $this->tweet_id;
         $pollResponse->options = $this->options->map->toResponse()->toBase();
 
         return $pollResponse;

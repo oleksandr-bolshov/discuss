@@ -31,15 +31,28 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
  */
 final class Tweet extends Model
 {
-    protected $with = ['author', 'poll', 'images'];
-    protected $withCount = ['likes'];
+    protected $with = [
+        'author',
+        'poll',
+        'images',
+    ];
+
+    protected $withCount = [
+        'likes',
+    ];
 
     protected bool $withParent = false;
+
     protected bool $withReplies = false;
 
     protected $fillable = [
         'text',
         'author_id',
+    ];
+
+    protected $casts = [
+        'likes_count' => 'integer',
+        'replies_count' => 'integer',
     ];
 
     public function author(): BelongsTo
@@ -79,8 +92,8 @@ final class Tweet extends Model
         $tweet->id = $this->id;
         $tweet->text = $this->text;
         $tweet->author = $this->author->toResponse();
-        $tweet->repliesCount = (int) ($this->replies_count);
-        $tweet->likesCount = (int) $this->likes_count;
+        $tweet->repliesCount = $this->replies_count;
+        $tweet->likesCount = $this->likes_count;
         $tweet->poll = $this->poll ? $this->poll->toResponse() : null;
         $tweet->images = $this->images ? $this->images->map->toResponse()->toBase() : null;
         $tweet->createdAt = $this->created_at;

@@ -1,32 +1,13 @@
-# Discuss DB Layer
+# Discuss
 
 [![Latest Version on Packagist][ico-version]][link-packagist]
 [![Build Status][ico-travis]][link-travis]
 [![StyleCI][ico-styleci]][link-styleci]
 [![codecov][ico-codecov]][link-codecov]
 [![Codacy][ico-codacy]][link-codacy]
+## Description
 
-## Installation
-
-Via Composer
-
-``` bash
-$ composer require apathy/discuss
-```
-
-## Usage
-
-Will be updated soon.
-
-## Testing
-
-``` bash
-$ composer test
-```
-
-## License
-
-license. Please see the [license file](license) for more information.
+This package is a DB layer that provides the ability to create a twitter-like database structure and the ability to manage data in it through services
 
 [ico-version]: https://img.shields.io/packagist/v/apathy/discuss.svg?style=flat-square
 [ico-travis]: https://img.shields.io/travis/oleksandr-bolshov/discuss/master?style=flat-square
