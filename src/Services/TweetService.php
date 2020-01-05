@@ -6,6 +6,7 @@ namespace Apathy\Discuss\Services;
 
 use Apathy\Discuss\Contracts\TweetService as TweetServiceContract;
 use Apathy\Discuss\DataObjects\Image\CreateImageRequest;
+use Apathy\Discuss\DataObjects\PaginationRequest;
 use Apathy\Discuss\DataObjects\Poll\CreatePollOptionRequest;
 use Apathy\Discuss\DataObjects\Tweet\CreateTweetRequest;
 use Apathy\Discuss\DataObjects\Tweet\TweetResponse;
@@ -38,48 +39,33 @@ final class TweetService implements TweetServiceContract
             ->toResponse();
     }
 
-    public function paginate(
-        int $page = self::DEFAULT_PAGE,
-        int $perPage = self::DEFAULT_PER_PAGE,
-        string $sort = self::DEFAULT_SORT,
-        string $direction = self::DEFAULT_DIRECTION
-    ): Paginator {
-        return $this->transformPaginationItems(
-            TweetModel::withCount('replies')->orderBy($sort, $direction)->paginate($perPage, ['*'], null, $page)
-        );
-    }
-
-    public function paginateByUserId(
-        int $userId,
-        int $page = self::DEFAULT_PAGE,
-        int $perPage = self::DEFAULT_PER_PAGE,
-        string $sort = self::DEFAULT_SORT,
-        string $direction = self::DEFAULT_DIRECTION
-    ): Paginator {
+    public function paginate(PaginationRequest $paginationRequest): Paginator {
         return $this->transformPaginationItems(
             TweetModel::withCount('replies')
-                ->where('author_id', $userId)
-                ->orderBy($sort, $direction)
-                ->paginate($perPage, ['*'], null, $page)
+                ->orderBy($paginationRequest->sort, $paginationRequest->direction)
+                ->paginate($paginationRequest->perPage, ['*'], null, $paginationRequest->page)
         );
     }
 
-    public function paginateByListId(
-        int $listId,
-        int $page = self::DEFAULT_PAGE,
-        int $perPage = self::DEFAULT_PER_PAGE,
-        string $sort = self::DEFAULT_SORT,
-        string $direction = self::DEFAULT_DIRECTION
-    ): Paginator {
+    public function paginateByUserId(PaginationRequest $paginationRequest): Paginator {
+        return $this->transformPaginationItems(
+            TweetModel::withCount('replies')
+                ->where('author_id', $paginationRequest->id)
+                ->orderBy($paginationRequest->sort, $paginationRequest->direction)
+                ->paginate($paginationRequest->perPage, ['*'], null, $paginationRequest->page)
+        );
+    }
+
+    public function paginateByListId(PaginationRequest $paginationRequest): Paginator {
         return $this->transformPaginationItems(
             TweetModel::withCount('replies')
                 ->whereIn('author_id', fn (Builder $query) => $query->select('user_id')
                         ->from('list_user')
-                        ->where('list_id', $listId)
+                        ->where('list_id', $paginationRequest->id)
                         ->where('user_type', ListUserType::MEMBER)
                 )
-                ->orderBy($sort, $direction)
-                ->paginate($perPage, ['*'], null, $page)
+                ->orderBy($paginationRequest->sort, $paginationRequest->direction)
+                ->paginate($paginationRequest->perPage, ['*'], null, $paginationRequest->page)
         );
     }
 

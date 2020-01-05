@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Apathy\Discuss\Models;
 
 use Apathy\Discuss\DataObjects\UserList\CreateUserListRequest;
-use Apathy\Discuss\DataObjects\UserList\UserListResponse as UserListResponse;
+use Apathy\Discuss\DataObjects\UserList\UserListResponse;
 use Apathy\Discuss\Enum\ListUserType;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
@@ -72,8 +72,8 @@ final class UserList extends Model
         $list->title = $this->title;
         $list->description = $this->description;
         $list->owner = $this->owner->toResponse();
-        $list->membersCount = $this->members_count;
         $list->subscribersCount = $this->subscribers_count;
+        $list->membersCount = $this->members_count;
         $list->createdAt = $this->created_at;
         $list->updatedAt = $this->updated_at;
 

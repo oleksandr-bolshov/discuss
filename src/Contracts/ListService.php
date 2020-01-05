@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Apathy\Discuss\Contracts;
 
+use Apathy\Discuss\DataObjects\PaginationRequest;
 use Apathy\Discuss\DataObjects\UserList\CreateUserListRequest;
 use Apathy\Discuss\DataObjects\UserList\MemberRequest;
 use Apathy\Discuss\DataObjects\UserList\SubscriberRequest;
@@ -11,31 +12,13 @@ use Apathy\Discuss\DataObjects\UserList\UpdateUserListRequest;
 use Apathy\Discuss\DataObjects\UserList\UserListResponse;
 use Illuminate\Pagination\LengthAwarePaginator as Paginator;
 
-interface ListService extends Pagination
+interface ListService
 {
-    public function paginateByOwnerId(
-        int $ownerId,
-        int $page = self::DEFAULT_PAGE,
-        int $perPage = self::DEFAULT_PER_PAGE,
-        string $sort = self::DEFAULT_SORT,
-        string $direction = self::DEFAULT_DIRECTION
-    ): Paginator;
+    public function paginateByOwnerId(PaginationRequest $paginationRequest): Paginator;
 
-    public function paginateBySubscriberId(
-        int $subscriberId,
-        int $page = self::DEFAULT_PAGE,
-        int $perPage = self::DEFAULT_PER_PAGE,
-        string $sort = self::DEFAULT_SORT,
-        string $direction = self::DEFAULT_DIRECTION
-    ): Paginator;
+    public function paginateBySubscriberId(PaginationRequest $paginationRequest): Paginator;
 
-    public function paginateByMemberId(
-        int $memberId,
-        int $page = self::DEFAULT_PAGE,
-        int $perPage = self::DEFAULT_PER_PAGE,
-        string $sort = self::DEFAULT_SORT,
-        string $direction = self::DEFAULT_DIRECTION
-    ): Paginator;
+    public function paginateByMemberId(PaginationRequest $paginationRequest): Paginator;
 
     public function find(int $id): UserListResponse;
 

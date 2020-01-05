@@ -13,8 +13,6 @@ use Illuminate\Database\Eloquent\Model;
  * @property int $id
  * @property string $path
  * @property int $tweet_id
- * @property Carbon $created_at
- * @property Carbon $updated_at
  */
 final class Image extends Model
 {

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Apathy\Discuss\Services;
 
 use Apathy\Discuss\Contracts\UserService as UserServiceContract;
+use Apathy\Discuss\DataObjects\PaginationRequest;
 use Apathy\Discuss\DataObjects\User\CreateUserRequest;
 use Apathy\Discuss\DataObjects\User\UpdateUserRequest;
 use Apathy\Discuss\DataObjects\User\UserResponse;
@@ -31,80 +32,50 @@ final class UserService implements UserServiceContract
         return UserModel::withCount('followers')->findOrFail($id)->toResponse();
     }
 
-    public function paginateUsersWhoLikedByTweetId(
-        int $tweetId,
-        int $page = self::DEFAULT_PAGE,
-        int $perPage = self::DEFAULT_PER_PAGE,
-        string $sort = self::DEFAULT_SORT,
-        string $direction = self::DEFAULT_DIRECTION
-    ): Paginator {
+    public function paginateUsersWhoLikedByTweetId(PaginationRequest $paginationRequest): Paginator {
         return $this->transformPaginationItems(
             UserModel::withCount('followers')
-                ->whereHas('likes', fn (Builder $query) => $query->where('tweet_id', $tweetId))
-                ->orderBy($sort, $direction)
-                ->paginate($perPage, ['*'], null, $page)
+                ->whereHas('likes', fn (Builder $query) => $query->where('tweet_id', $paginationRequest->id))
+                ->orderBy($paginationRequest->sort, $paginationRequest->direction)
+                ->paginate($paginationRequest->perPage, ['*'], null, $paginationRequest->page)
         );
     }
 
-    public function paginateFollowersByUserId(
-        int $userId,
-        int $page = self::DEFAULT_PAGE,
-        int $perPage = self::DEFAULT_PER_PAGE,
-        string $sort = self::DEFAULT_SORT,
-        string $direction = self::DEFAULT_DIRECTION
-    ): Paginator {
+    public function paginateFollowersByUserId(PaginationRequest $paginationRequest): Paginator {
         return $this->transformPaginationItems(
             UserModel::withCount('followers')
-                ->findOrFail($userId)
+                ->findOrFail($paginationRequest->id)
                 ->followers()
-                ->orderBy($sort, $direction)
-                ->paginate($perPage, ['*'], null, $page)
+                ->orderBy($paginationRequest->sort, $paginationRequest->direction)
+                ->paginate($paginationRequest->perPage, ['*'], null, $paginationRequest->page)
         );
     }
 
-    public function paginateFollowingsByUserId(
-        int $userId,
-        int $page = self::DEFAULT_PAGE,
-        int $perPage = self::DEFAULT_PER_PAGE,
-        string $sort = self::DEFAULT_SORT,
-        string $direction = self::DEFAULT_DIRECTION
-    ): Paginator {
+    public function paginateFollowingsByUserId(PaginationRequest $paginationRequest): Paginator {
         return $this->transformPaginationItems(
             UserModel::withCount('followers')
-                ->findOrFail($userId)
+                ->findOrFail($paginationRequest->id)
                 ->followings()
-                ->orderBy($sort, $direction)
-                ->paginate($perPage, ['*'], null, $page)
+                ->orderBy($paginationRequest->sort, $paginationRequest->direction)
+                ->paginate($paginationRequest->perPage, ['*'], null, $paginationRequest->page)
         );
     }
 
-    public function paginateSubscribersByListId(
-        int $listId,
-        int $page = self::DEFAULT_PAGE,
-        int $perPage = self::DEFAULT_PER_PAGE,
-        string $sort = self::DEFAULT_SORT,
-        string $direction = self::DEFAULT_DIRECTION
-    ): Paginator {
+    public function paginateSubscribersByListId(PaginationRequest $paginationRequest): Paginator {
         return $this->transformPaginationItems(
             UserModel::withCount('followers')
-                ->whereHas('listsWhereSubscriber', fn (Builder $query) => $query->whereListId($listId))
-                ->orderBy($sort, $direction)
-                ->paginate($perPage, ['*'], null, $page)
+                ->whereHas('listsWhereSubscriber', fn (Builder $query) => $query->whereListId($paginationRequest->id))
+                ->orderBy($paginationRequest->sort, $paginationRequest->direction)
+                ->paginate($paginationRequest->perPage, ['*'], null, $paginationRequest->page)
         );
     }
 
-    public function paginateMembersByListId(
-        int $listId,
-        int $page = self::DEFAULT_PAGE,
-        int $perPage = self::DEFAULT_PER_PAGE,
-        string $sort = self::DEFAULT_SORT,
-        string $direction = self::DEFAULT_DIRECTION
-    ): Paginator {
+    public function paginateMembersByListId(PaginationRequest $paginationRequest): Paginator {
         return $this->transformPaginationItems(
             UserModel::withCount('followers')
-                ->whereHas('listsWhereMember', fn (Builder $query) => $query->whereListId($listId))
-                ->orderBy($sort, $direction)
-                ->paginate($perPage, ['*'], null, $page)
+                ->whereHas('listsWhereMember', fn (Builder $query) => $query->whereListId($paginationRequest->id))
+                ->orderBy($paginationRequest->sort, $paginationRequest->direction)
+                ->paginate($paginationRequest->perPage, ['*'], null, $paginationRequest->page)
         );
     }
 

@@ -8,6 +8,6 @@ final class PollOptionResponse
 {
     public int $id;
     public string $option;
-    public int $voterCount;
+    public int $votesCount;
     public int $pollId;
 }

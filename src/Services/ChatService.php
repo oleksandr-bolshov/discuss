@@ -7,6 +7,7 @@ namespace Apathy\Discuss\Services;
 use Apathy\Discuss\Contracts\ChatService as ChatServiceContract;
 use Apathy\Discuss\Contracts\MessageService as MessageServiceContract;
 use Apathy\Discuss\DataObjects\Chat\CreateChatRequest;
+use Apathy\Discuss\DataObjects\PaginationRequest;
 use Apathy\Discuss\Models\Chat as ChatModel;
 use Apathy\Discuss\Validators\Chat as ChatValidator;
 use Carbon\Carbon;
@@ -27,16 +28,10 @@ final class ChatService implements ChatServiceContract
         $this->validator = $validator;
     }
 
-    public function paginateChatsByUserId(
-        int $userId,
-        int $page = self::DEFAULT_PAGE,
-        int $perPage = self::DEFAULT_PER_PAGE,
-        string $sort = self::DEFAULT_SORT,
-        string $direction = self::DEFAULT_DIRECTION
-    ): Paginator {
+    public function paginateChatsByUserId(PaginationRequest $paginationRequest): Paginator {
         $paginator = ChatModel::join('messages', 'chats.id', '=', 'messages.chat_id')
-            ->orderBy('messages.'.$sort, $direction)
-            ->paginate($perPage, ['*'], null, $page);
+            ->orderBy('messages.'.$paginationRequest->sort, $paginationRequest->direction)
+            ->paginate($paginationRequest->perPage, ['*'], null, $paginationRequest->page);
 
         return new Paginator(
             Collection::make($paginator->items())

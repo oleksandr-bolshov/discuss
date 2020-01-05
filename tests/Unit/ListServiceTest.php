@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Apathy\Discuss\Tests\Unit;
 
 use Apathy\Discuss\Contracts\ListService;
+use Apathy\Discuss\DataObjects\PaginationRequest;
 use Apathy\Discuss\DataObjects\UserList\CreateUserListRequest;
 use Apathy\Discuss\DataObjects\UserList\MemberRequest;
 use Apathy\Discuss\DataObjects\UserList\SubscriberRequest;
@@ -52,7 +53,10 @@ class ListServiceTest extends TestCase
     {
         factory(UserList::class, 20)->create();
 
-        $lists = $this->listService->paginateByOwnerId($this->ownerId);
+        $paginationRequest = new PaginationRequest();
+        $paginationRequest->id = $this->ownerId;
+
+        $lists = $this->listService->paginateByOwnerId($paginationRequest);
 
         $this->assertCount(15, $lists);
         foreach ($lists as $list) {
@@ -78,7 +82,10 @@ class ListServiceTest extends TestCase
 
         DB::table('list_user')->insert($listsSubscriber);
 
-        $actualLists = $this->listService->paginateBySubscriberId($subscriberId);
+        $paginationRequest = new PaginationRequest();
+        $paginationRequest->id = $subscriberId;
+
+        $actualLists = $this->listService->paginateBySubscriberId($paginationRequest);
 
         $this->assertEquals(
             $expectedLists->pluck('id', 'title'),
@@ -104,7 +111,10 @@ class ListServiceTest extends TestCase
 
         DB::table('list_user')->insert($listsMember);
 
-        $actualLists = $this->listService->paginateByMemberId($memberId);
+        $paginationRequest = new PaginationRequest();
+        $paginationRequest->id = $memberId;
+
+        $actualLists = $this->listService->paginateByMemberId($paginationRequest);
 
         $this->assertEquals(
             $expectedLists->pluck('id', 'title'),

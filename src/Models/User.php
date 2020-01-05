@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Apathy\Discuss\Models;
 
 use Apathy\Discuss\DataObjects\User\CreateUserRequest;
-use Apathy\Discuss\DataObjects\User\UserResponse as UserResponse;
+use Apathy\Discuss\DataObjects\User\UserResponse;
 use Apathy\Discuss\Enum\ListUserType;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Collection;
@@ -38,11 +38,10 @@ final class User extends Authenticatable
     ];
 
     protected $hidden = [
-        'password', 'remember_token',
+        'password',
     ];
 
     protected $casts = [
-        'email_verified_at' => 'datetime',
         'followers_count' => 'integer',
     ];
 
@@ -95,7 +94,7 @@ final class User extends Authenticatable
         $user->createdAt = $this->created_at;
         $user->updatedAt = $this->updated_at;
 
-        if ($this->followers_count) {
+        if ($this->followers_count !== null) {
             $user->followersCount = $this->followers_count;
         }
 

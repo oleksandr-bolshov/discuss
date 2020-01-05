@@ -7,6 +7,7 @@ namespace Apathy\Discuss\Tests\Unit;
 use Apathy\Discuss\Contracts\ChatService;
 use Apathy\Discuss\DataObjects\Chat\CreateChatRequest;
 use Apathy\Discuss\DataObjects\Message\MessageResponse;
+use Apathy\Discuss\DataObjects\PaginationRequest;
 use Apathy\Discuss\Models\Chat as ChatModel;
 use Apathy\Discuss\Models\Message as MessageModel;
 use Apathy\Discuss\Models\User as UserModel;
@@ -37,7 +38,10 @@ class ChatServiceTest extends TestCase
                 $chat->messages()->saveMany([factory(MessageModel::class)->make()]);
             });
 
-        $chats = $this->chatService->paginateChatsByUserId($userId)->toBase();
+        $paginationRequest = new PaginationRequest();
+        $paginationRequest->id = $userId;
+
+        $chats = $this->chatService->paginateChatsByUserId($paginationRequest)->toBase();
 
         $lastChatsMessages = $chats->pluck('lastMessage');
 

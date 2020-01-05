@@ -11,9 +11,7 @@ use Illuminate\Database\Eloquent\Model;
  * Class Following.
  * @property int $id
  * @property int $follower_id
- * @property User $follower
  * @property int $user_id
- * @property User $user
  * @property Carbon $created_at
  */
 final class Following extends Model

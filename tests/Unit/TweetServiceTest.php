@@ -4,6 +4,7 @@ namespace Apathy\Discuss\Tests\Unit;
 
 use Apathy\Discuss\Contracts\TweetService;
 use Apathy\Discuss\DataObjects\Image\CreateImageRequest;
+use Apathy\Discuss\DataObjects\PaginationRequest;
 use Apathy\Discuss\DataObjects\Poll\CreatePollOptionRequest;
 use Apathy\Discuss\DataObjects\Poll\CreatePollRequest;
 use Apathy\Discuss\DataObjects\Tweet\CreateTweetRequest;
@@ -71,7 +72,12 @@ class TweetServiceTest extends TestCase
         $perPage = 20;
 
         factory(Tweet::class, 20)->create();
-        $tweets = $this->tweetService->paginate($page, $perPage);
+
+        $paginationRequest = new PaginationRequest();
+        $paginationRequest->page = $page;
+        $paginationRequest->perPage = $perPage;
+
+        $tweets = $this->tweetService->paginate($paginationRequest);
         $this->assertCount($perPage, $tweets);
         foreach ($tweets as $tweet) {
             $this->assertInstanceOf(TweetResponse::class, $tweet);
@@ -84,7 +90,13 @@ class TweetServiceTest extends TestCase
         $perPage = 10;
 
         factory(Tweet::class, 12)->create();
-        $tweets = $this->tweetService->paginateByUserId($this->userId, $page, $perPage);
+
+        $paginationRequest = new PaginationRequest();
+        $paginationRequest->id = $this->userId;
+        $paginationRequest->page = $page;
+        $paginationRequest->perPage = $perPage;
+
+        $tweets = $this->tweetService->paginateByUserId($paginationRequest);
         $this->assertCount($perPage, $tweets);
         foreach ($tweets as $tweet) {
             $this->assertInstanceOf(TweetResponse::class, $tweet);
@@ -109,8 +121,11 @@ class TweetServiceTest extends TestCase
             'author_id' => factory(User::class)->create()->id,
         ]);
 
+        $paginationRequest = new PaginationRequest();
+        $paginationRequest->id = $listId;
+
         $actualTweets = $this->tweetService
-            ->paginateByListId($listId)
+            ->paginateByListId($paginationRequest)
             ->toBase()
             ->sortBy('id')
             ->values();

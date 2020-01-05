@@ -11,9 +11,7 @@ use Illuminate\Database\Eloquent\Model;
  * Class Like.
  * @property int $id
  * @property int $user_id
- * @property User $user
  * @property int $tweet_id
- * @property Tweet $tweet
  * @property Carbon $created_at
  */
 final class Like extends Model

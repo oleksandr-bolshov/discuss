@@ -17,8 +17,6 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property Carbon $end_datetime
  * @property Collection $options
  * @property int $tweet_id
- * @property Carbon $created_at
- * @property Carbon $updated_at
  */
 final class Poll extends Model
 {

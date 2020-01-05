@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Apathy\Discuss\Services;
 
 use Apathy\Discuss\Contracts\ListService as ListServiceContract;
+use Apathy\Discuss\DataObjects\PaginationRequest;
 use Apathy\Discuss\DataObjects\UserList\CreateUserListRequest;
 use Apathy\Discuss\DataObjects\UserList\MemberRequest;
 use Apathy\Discuss\DataObjects\UserList\SubscriberRequest;
@@ -36,55 +37,37 @@ final class ListService implements ListServiceContract
             ->toResponse();
     }
 
-    public function paginateByOwnerId(
-        int $ownerId,
-        int $page = self::DEFAULT_PAGE,
-        int $perPage = self::DEFAULT_PER_PAGE,
-        string $sort = self::DEFAULT_SORT,
-        string $direction = self::DEFAULT_DIRECTION
-    ): Paginator {
+    public function paginateByOwnerId(PaginationRequest $paginationRequest): Paginator {
         return $this->transformPaginationItems(
             UsersListModel::with('owner')
                 ->withCount('subscribers', 'members')
-                ->where('owner_id', $ownerId)
-                ->orderBy($sort, $direction)
-                ->paginate($perPage, ['*'], null, $page)
+                ->where('owner_id', $paginationRequest->id)
+                ->orderBy($paginationRequest->sort, $paginationRequest->direction)
+                ->paginate($paginationRequest->perPage, ['*'], null, $paginationRequest->page)
         );
     }
 
-    public function paginateBySubscriberId(
-        int $subscriberId,
-        int $page = self::DEFAULT_PAGE,
-        int $perPage = self::DEFAULT_PER_PAGE,
-        string $sort = self::DEFAULT_SORT,
-        string $direction = self::DEFAULT_DIRECTION
-    ): Paginator {
+    public function paginateBySubscriberId(PaginationRequest $paginationRequest): Paginator {
         return $this->transformPaginationItems(
             UsersListModel::with('owner')
                 ->withCount('subscribers', 'members')
-                ->whereHas('subscribers', fn (Builder $query) => $query->where('user_id', $subscriberId)
+                ->whereHas('subscribers', fn (Builder $query) => $query->where('user_id', $paginationRequest->id)
                         ->where('user_type', ListUserType::SUBSCRIBER)
                 )
-                ->orderBy($sort, $direction)
-                ->paginate($perPage, ['*'], null, $page)
+                ->orderBy($paginationRequest->sort, $paginationRequest->direction)
+                ->paginate($paginationRequest->perPage, ['*'], null, $paginationRequest->page)
         );
     }
 
-    public function paginateByMemberId(
-        int $memberId,
-        int $page = self::DEFAULT_PAGE,
-        int $perPage = self::DEFAULT_PER_PAGE,
-        string $sort = self::DEFAULT_SORT,
-        string $direction = self::DEFAULT_DIRECTION
-    ): Paginator {
+    public function paginateByMemberId(PaginationRequest $paginationRequest): Paginator {
         return $this->transformPaginationItems(
             UsersListModel::with('owner')
                 ->withCount('subscribers', 'members')
-                ->whereHas('members', fn (Builder $query) => $query->where('user_id', $memberId)
+                ->whereHas('members', fn (Builder $query) => $query->where('user_id', $paginationRequest->id)
                         ->where('user_type', ListUserType::MEMBER)
                 )
-                ->orderBy($sort, $direction)
-                ->paginate($perPage, ['*'], null, $page)
+                ->orderBy($paginationRequest->sort, $paginationRequest->direction)
+                ->paginate($paginationRequest->perPage, ['*'], null, $paginationRequest->page)
         );
     }
 
@@ -100,7 +83,7 @@ final class ListService implements ListServiceContract
                 $request->membersIds->combine(
                     collect()->pad(
                         $request->membersIds->count(),
-                        ['user_type' => ListUserType::SUBSCRIBER]
+                        ['user_type' => ListUserType::MEMBER]
                     )
                 )
             );
@@ -137,7 +120,8 @@ final class ListService implements ListServiceContract
 
     public function hasSubscriber(SubscriberRequest $request): bool
     {
-        return UsersListModel::whereHas('subscribers', fn (Builder $query) => $query->where('users.id', $request->subscriberId)
+        return UsersListModel::whereHas(
+            'subscribers', fn (Builder $query) => $query->where('users.id', $request->subscriberId)
         )
             ->where('lists.id', $request->listId)
             ->exists();
@@ -145,7 +129,8 @@ final class ListService implements ListServiceContract
 
     public function hasMember(MemberRequest $request): bool
     {
-        return UsersListModel::whereHas('members', fn (Builder $query) => $query->where('users.id', $request->memberId)
+        return UsersListModel::whereHas(
+            'members', fn (Builder $query) => $query->where('users.id', $request->memberId)
         )
             ->where('lists.id', $request->listId)
             ->exists();

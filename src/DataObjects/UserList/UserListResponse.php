@@ -13,8 +13,8 @@ final class UserListResponse
     public string $title;
     public ?string $description;
     public UserResponse $owner;
-    public int $membersCount;
     public int $subscribersCount;
+    public int $membersCount;
     public Carbon $createdAt;
     public Carbon $updatedAt;
 }

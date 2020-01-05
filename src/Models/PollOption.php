@@ -15,8 +15,6 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property string $option
  * @property int $votes_count
  * @property int $poll_id
- * @property Carbon $created_at
- * @property Carbon $updated_at
  */
 final class PollOption extends Model
 {
@@ -47,7 +45,7 @@ final class PollOption extends Model
         $pollOptionResponse->id = $this->id;
         $pollOptionResponse->option = $this->option;
         $pollOptionResponse->pollId = $this->poll_id;
-        $pollOptionResponse->voterCount = $this->votes_count;
+        $pollOptionResponse->votesCount = $this->votes_count;
 
         return $pollOptionResponse;
     }

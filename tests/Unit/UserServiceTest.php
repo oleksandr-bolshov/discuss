@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Apathy\Discuss\Tests\Unit;
 
 use Apathy\Discuss\Contracts\UserService;
+use Apathy\Discuss\DataObjects\PaginationRequest;
 use Apathy\Discuss\DataObjects\User\CreateUserRequest;
 use Apathy\Discuss\DataObjects\User\UpdateUserRequest;
 use Apathy\Discuss\DataObjects\User\UserResponse as UserResponse;
@@ -46,6 +47,7 @@ class UserServiceTest extends TestCase
         $this->assertEquals($actual->lastName, self::USER_DATA['last_name']);
         $this->assertEquals($actual->email, self::USER_DATA['email']);
         $this->assertEquals($actual->username, self::USER_DATA['username']);
+        $this->assertEquals($actual->followersCount, 0);
     }
 
     public function test_paginate_users_who_liked_by_tweet_id()
@@ -58,7 +60,10 @@ class UserServiceTest extends TestCase
             ]);
         });
 
-        $users = $this->userService->paginateUsersWhoLikedByTweetId($tweet->id);
+        $paginationRequest = new PaginationRequest();
+        $paginationRequest->id = $tweet->id;
+
+        $users = $this->userService->paginateUsersWhoLikedByTweetId($paginationRequest);
 
         $this->assertCount(15, $users);
         foreach ($users as $user) {
@@ -72,7 +77,10 @@ class UserServiceTest extends TestCase
         $followers = factory(User::class, 20)->create();
         $followers->map(fn (User $follower) => $follower->followings()->attach($userId));
 
-        $userFollowers = $this->userService->paginateFollowersByUserId($userId);
+        $paginationRequest = new PaginationRequest();
+        $paginationRequest->id = $userId;
+
+        $userFollowers = $this->userService->paginateFollowersByUserId($paginationRequest);
         $this->assertCount(15, $userFollowers);
         foreach ($userFollowers as $userFollower) {
             $this->assertInstanceOf(UserResponse::class, $userFollower);
@@ -85,7 +93,11 @@ class UserServiceTest extends TestCase
         $followings = factory(User::class, 20)->create();
 
         $followings->map(fn (User $following) => $following->followers()->attach($userId));
-        $userFollowings = $this->userService->paginateFollowingsByUserId($userId);
+
+        $paginationRequest = new PaginationRequest();
+        $paginationRequest->id = $userId;
+
+        $userFollowings = $this->userService->paginateFollowingsByUserId($paginationRequest);
         $this->assertCount(15, $userFollowings);
         foreach ($userFollowings as $userFollowing) {
             $this->assertInstanceOf(UserResponse::class, $userFollowing);
@@ -111,8 +123,11 @@ class UserServiceTest extends TestCase
 
         DB::table('list_user')->insert($listSubscribers);
 
+        $paginationRequest = new PaginationRequest();
+        $paginationRequest->id = $listId;
+
         $actualSubscribers = $this->userService
-            ->paginateSubscribersByListId($listId)
+            ->paginateSubscribersByListId($paginationRequest)
             ->toBase()
             ->sortBy('id')
             ->values();
@@ -142,8 +157,11 @@ class UserServiceTest extends TestCase
 
         DB::table('list_user')->insert($listSubscribers);
 
+        $paginationRequest = new PaginationRequest();
+        $paginationRequest->id = $listId;
+
         $actualMembers = $this->userService
-            ->paginateMembersByListId($listId)
+            ->paginateMembersByListId($paginationRequest)
             ->toBase()
             ->sortBy('id')
             ->values();
