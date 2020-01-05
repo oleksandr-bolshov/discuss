@@ -25,7 +25,8 @@ final class MessageService implements MessageServiceContract
         $this->validator = $validator;
     }
 
-    public function paginateMessagesByChatId(PaginationRequest $paginationRequest): Paginator {
+    public function paginateMessagesByChatId(PaginationRequest $paginationRequest): Paginator
+    {
         return $this->transformPaginationItems(
             MessageModel::whereChatId($paginationRequest->id)
                 ->orderBy($paginationRequest->sort, $paginationRequest->direction)
