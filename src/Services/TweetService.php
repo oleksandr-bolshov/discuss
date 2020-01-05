@@ -39,7 +39,8 @@ final class TweetService implements TweetServiceContract
             ->toResponse();
     }
 
-    public function paginate(PaginationRequest $paginationRequest): Paginator {
+    public function paginate(PaginationRequest $paginationRequest): Paginator
+    {
         return $this->transformPaginationItems(
             TweetModel::withCount('replies')
                 ->orderBy($paginationRequest->sort, $paginationRequest->direction)
@@ -47,7 +48,8 @@ final class TweetService implements TweetServiceContract
         );
     }
 
-    public function paginateByUserId(PaginationRequest $paginationRequest): Paginator {
+    public function paginateByUserId(PaginationRequest $paginationRequest): Paginator
+    {
         return $this->transformPaginationItems(
             TweetModel::withCount('replies')
                 ->where('author_id', $paginationRequest->id)
@@ -56,7 +58,8 @@ final class TweetService implements TweetServiceContract
         );
     }
 
-    public function paginateByListId(PaginationRequest $paginationRequest): Paginator {
+    public function paginateByListId(PaginationRequest $paginationRequest): Paginator
+    {
         return $this->transformPaginationItems(
             TweetModel::withCount('replies')
                 ->whereIn('author_id', fn (Builder $query) => $query->select('user_id')
@@ -97,8 +100,8 @@ final class TweetService implements TweetServiceContract
 
             $pollModel->options()->saveMany(
                 $request->poll->options->map(fn (CreatePollOptionRequest $pollOption) => new PollOptionModel([
-                        'option' => $pollOption->option,
-                    ])
+                    'option' => $pollOption->option,
+                ])
                 )
             );
         }

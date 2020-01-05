@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Apathy\Discuss\Models;
 
 use Apathy\Discuss\DataObjects\Image\ImageResponse;
-use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 
 /**
