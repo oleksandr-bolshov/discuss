@@ -7,7 +7,6 @@ namespace Apathy\Discuss\Services;
 use Apathy\Discuss\Contracts\TweetService as TweetServiceContract;
 use Apathy\Discuss\DataObjects\Image\CreateImageRequest;
 use Apathy\Discuss\DataObjects\PaginateByIdRequest;
-use Apathy\Discuss\DataObjects\Poll\CreatePollOptionRequest;
 use Apathy\Discuss\DataObjects\Tweet\CreateTweetRequest;
 use Apathy\Discuss\DataObjects\Tweet\PaginateRequest;
 use Apathy\Discuss\DataObjects\Tweet\TweetResponse;
@@ -40,7 +39,8 @@ final class TweetService implements TweetServiceContract
             ->toResponse();
     }
 
-    public function paginate(PaginateRequest $paginationRequest): Paginator {
+    public function paginate(PaginateRequest $paginationRequest): Paginator
+    {
         return $this->transformPaginationItems(
             TweetModel::withCount('replies')
                 ->orderBy($paginationRequest->sort, $paginationRequest->direction)
@@ -48,7 +48,8 @@ final class TweetService implements TweetServiceContract
         );
     }
 
-    public function paginateByUserId(PaginateByIdRequest $paginationRequest): Paginator {
+    public function paginateByUserId(PaginateByIdRequest $paginationRequest): Paginator
+    {
         return $this->transformPaginationItems(
             TweetModel::withCount('replies')
                 ->where('author_id', $paginationRequest->id)
@@ -57,7 +58,8 @@ final class TweetService implements TweetServiceContract
         );
     }
 
-    public function paginateByListId(PaginateByIdRequest $paginationRequest): Paginator {
+    public function paginateByListId(PaginateByIdRequest $paginationRequest): Paginator
+    {
         return $this->transformPaginationItems(
             TweetModel::withCount('replies')
                 ->whereIn('author_id', fn (Builder $query) => $query->select('user_id')
@@ -98,9 +100,8 @@ final class TweetService implements TweetServiceContract
 
             $pollModel->options()->saveMany(
                 $request->poll->options->map(fn (string $option) => new PollOptionModel([
-                        'option' => $option,
-                    ])
-                )
+                    'option' => $option,
+                ]))
             );
         }
     }

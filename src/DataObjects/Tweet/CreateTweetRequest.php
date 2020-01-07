@@ -23,6 +23,7 @@ final class CreateTweetRequest
         $request->inReplyToTweetId = $data['parent_id'] ?? null;
         $request->images = isset($data['images']) ? collect($data['images']) : null;
         $request->poll = isset($data['poll']) ? CreatePollRequest::fromArray($data['poll']) : null;
+
         return $request;
     }
 }

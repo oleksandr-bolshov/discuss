@@ -19,6 +19,7 @@ final class CreatePollRequest
         $request->title = $data['title'];
         $request->endDatetime = Carbon::parse($data['end_datetime']);
         $request->options = collect($data['options']);
+
         return $request;
     }
 }

@@ -28,7 +28,8 @@ final class ChatService implements ChatServiceContract
         $this->validator = $validator;
     }
 
-    public function paginateChatsByUserId(PaginateByIdRequest $paginationRequest): Paginator {
+    public function paginateChatsByUserId(PaginateByIdRequest $paginationRequest): Paginator
+    {
         $paginator = ChatModel::join('messages', 'chats.id', '=', 'messages.chat_id')
             ->orderBy('messages.'.$paginationRequest->sort, $paginationRequest->direction)
             ->paginate($paginationRequest->perPage, ['*'], null, $paginationRequest->page);
@@ -64,7 +65,8 @@ final class ChatService implements ChatServiceContract
 
     public function chatExists(CreateChatRequest $request): bool
     {
-        return ChatModel::whereHas('members', fn (Builder $query) => $query->whereIn('users.id', $request->membersIds->toArray())
+        return ChatModel::whereHas(
+            'members', fn (Builder $query) => $query->whereIn('users.id', $request->membersIds->toArray())
         )->exists();
     }
 

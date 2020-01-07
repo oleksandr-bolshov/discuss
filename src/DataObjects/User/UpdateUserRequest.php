@@ -24,6 +24,7 @@ final class UpdateUserRequest
         $request->username = $data['username'] ?? null;
         $request->password = $data['password'] ?? null;
         $request->profileImage = $data['profile_image'] ?? null;
+
         return $request;
     }
 }

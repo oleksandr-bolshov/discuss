@@ -59,7 +59,7 @@ class ChatServiceTest extends TestCase
         $users = $users->map->toResponse()->pluck('id')->toArray();
 
         $this->chatService->create(CreateChatRequest::fromArray([
-            'members_ids' => $users
+            'members_ids' => $users,
         ]));
 
         foreach ($users as $user) {
@@ -91,7 +91,7 @@ class ChatServiceTest extends TestCase
         $expectedChatsCount = DB::table('chats')->count();
 
         $this->chatService->create(CreateChatRequest::fromArray([
-            'members_ids' => $users
+            'members_ids' => $users,
         ]));
 
         $actualChatsCount = DB::table('chats')->count();

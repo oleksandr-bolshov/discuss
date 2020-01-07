@@ -20,6 +20,7 @@ final class CreateUserListRequest
         $request->description = $data['description'] ?? null;
         $request->ownerId = $data['owner_id'];
         $request->membersIds = isset($data['members_ids']) ? collect($data['members_ids']) : null;
+
         return $request;
     }
 }

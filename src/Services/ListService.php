@@ -37,7 +37,8 @@ final class ListService implements ListServiceContract
             ->toResponse();
     }
 
-    public function paginateByOwnerId(PaginateByIdRequest $paginationRequest): Paginator {
+    public function paginateByOwnerId(PaginateByIdRequest $paginationRequest): Paginator
+    {
         return $this->transformPaginationItems(
             UsersListModel::with('owner')
                 ->withCount('subscribers', 'members')
@@ -47,7 +48,8 @@ final class ListService implements ListServiceContract
         );
     }
 
-    public function paginateBySubscriberId(PaginateByIdRequest $paginationRequest): Paginator {
+    public function paginateBySubscriberId(PaginateByIdRequest $paginationRequest): Paginator
+    {
         return $this->transformPaginationItems(
             UsersListModel::with('owner')
                 ->withCount('subscribers', 'members')
@@ -59,7 +61,8 @@ final class ListService implements ListServiceContract
         );
     }
 
-    public function paginateByMemberId(PaginateByIdRequest $paginationRequest): Paginator {
+    public function paginateByMemberId(PaginateByIdRequest $paginationRequest): Paginator
+    {
         return $this->transformPaginationItems(
             UsersListModel::with('owner')
                 ->withCount('subscribers', 'members')
