@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Apathy\Discuss\Models;
 
 use Apathy\Discuss\DataObjects\Poll\PollOptionResponse;
-use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 

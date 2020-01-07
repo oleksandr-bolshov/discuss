@@ -160,8 +160,9 @@ class TweetServiceTest extends TestCase
 
         $images = [];
         foreach (range(0, 3) as $i) {
-            $image = new CreateImageRequest();
-            $image->path = "fake path {$i}";
+            $image = CreateImageRequest::fromArray([
+                'path' => "fake path {$i}"
+            ]);
             $images[] = $image;
         }
         $tweetData['images'] = $images;
