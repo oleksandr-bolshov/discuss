@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Apathy\Discuss\Tests\Unit;
 
 use Apathy\Discuss\Contracts\UserService;
-use Apathy\Discuss\DataObjects\PaginationRequest;
+use Apathy\Discuss\DataObjects\PaginateByIdRequest;
 use Apathy\Discuss\DataObjects\User\CreateUserRequest;
 use Apathy\Discuss\DataObjects\User\UpdateUserRequest;
 use Apathy\Discuss\DataObjects\User\UserResponse as UserResponse;
@@ -60,10 +60,9 @@ class UserServiceTest extends TestCase
             ]);
         });
 
-        $paginationRequest = new PaginationRequest();
-        $paginationRequest->id = $tweet->id;
-
-        $users = $this->userService->paginateUsersWhoLikedByTweetId($paginationRequest);
+        $users = $this->userService->paginateUsersWhoLikedByTweetId(
+            PaginateByIdRequest::fromArray(['id' => $tweet->id])
+        );
 
         $this->assertCount(15, $users);
         foreach ($users as $user) {
@@ -77,10 +76,9 @@ class UserServiceTest extends TestCase
         $followers = factory(User::class, 20)->create();
         $followers->map(fn (User $follower) => $follower->followings()->attach($userId));
 
-        $paginationRequest = new PaginationRequest();
-        $paginationRequest->id = $userId;
-
-        $userFollowers = $this->userService->paginateFollowersByUserId($paginationRequest);
+        $userFollowers = $this->userService->paginateFollowersByUserId(
+            PaginateByIdRequest::fromArray(['id' => $userId])
+        );
         $this->assertCount(15, $userFollowers);
         foreach ($userFollowers as $userFollower) {
             $this->assertInstanceOf(UserResponse::class, $userFollower);
@@ -94,10 +92,9 @@ class UserServiceTest extends TestCase
 
         $followings->map(fn (User $following) => $following->followers()->attach($userId));
 
-        $paginationRequest = new PaginationRequest();
-        $paginationRequest->id = $userId;
-
-        $userFollowings = $this->userService->paginateFollowingsByUserId($paginationRequest);
+        $userFollowings = $this->userService->paginateFollowingsByUserId(
+            PaginateByIdRequest::fromArray(['id' => $userId])
+        );
         $this->assertCount(15, $userFollowings);
         foreach ($userFollowings as $userFollowing) {
             $this->assertInstanceOf(UserResponse::class, $userFollowing);
@@ -123,11 +120,8 @@ class UserServiceTest extends TestCase
 
         DB::table('list_user')->insert($listSubscribers);
 
-        $paginationRequest = new PaginationRequest();
-        $paginationRequest->id = $listId;
-
         $actualSubscribers = $this->userService
-            ->paginateSubscribersByListId($paginationRequest)
+            ->paginateSubscribersByListId(PaginateByIdRequest::fromArray(['id' => $listId]))
             ->toBase()
             ->sortBy('id')
             ->values();
@@ -157,11 +151,8 @@ class UserServiceTest extends TestCase
 
         DB::table('list_user')->insert($listSubscribers);
 
-        $paginationRequest = new PaginationRequest();
-        $paginationRequest->id = $listId;
-
         $actualMembers = $this->userService
-            ->paginateMembersByListId($paginationRequest)
+            ->paginateMembersByListId(PaginateByIdRequest::fromArray(['id' => $listId]))
             ->toBase()
             ->sortBy('id')
             ->values();
@@ -174,40 +165,27 @@ class UserServiceTest extends TestCase
 
     public function test_create()
     {
-        $createUserRequest = new CreateUserRequest();
+        $createUserData = self::USER_DATA + ['password' => 'password'];
 
-        $createUserRequest->firstName = self::USER_DATA['first_name'];
-        $createUserRequest->lastName = self::USER_DATA['last_name'];
-        $createUserRequest->email = self::USER_DATA['email'];
-        $createUserRequest->username = self::USER_DATA['username'];
-        $createUserRequest->password = 'password';
-
-        $this->userService->create($createUserRequest);
+        $this->userService->create(CreateUserRequest::fromArray($createUserData));
 
         $this->assertDatabaseHas('users', self::USER_DATA);
     }
 
     public function test_create_with_invalid_input()
     {
-        $createUserRequest = new CreateUserRequest();
         $this->expectException(InvalidArgumentException::class);
-        $this->userService->create($createUserRequest);
+        $this->userService->create(new CreateUserRequest());
     }
 
     public function test_create_not_unique_email()
     {
         factory(User::class)->create(self::USER_DATA);
-        $createUserRequest = new CreateUserRequest();
-
-        $createUserRequest->firstName = self::USER_DATA['first_name'];
-        $createUserRequest->lastName = self::USER_DATA['last_name'];
-        $createUserRequest->email = self::USER_DATA['email'];
-        $createUserRequest->username = self::USER_DATA['username'];
-        $createUserRequest->password = 'password';
+        $createUserData = self::USER_DATA + ['password' => 'password'];
 
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage('The email has already been taken');
-        $this->userService->create($createUserRequest);
+        $this->userService->create(CreateUserRequest::fromArray($createUserData));
     }
 
     public function test_update()
@@ -215,11 +193,10 @@ class UserServiceTest extends TestCase
         $userId = factory(User::class)->create()->id;
         $expectedFirstName = 'updated_first_name';
 
-        $updateUserRequest = new UpdateUserRequest();
-        $updateUserRequest->id = $userId;
-        $updateUserRequest->firstName = $expectedFirstName;
-
-        $this->userService->update($updateUserRequest);
+        $this->userService->update(UpdateUserRequest::fromArray([
+            'id' => $userId,
+            'first_name' => $expectedFirstName,
+        ]));
 
         $this->assertDatabaseHas('users', [
             'first_name' => $expectedFirstName,

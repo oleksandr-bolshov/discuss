@@ -25,9 +25,10 @@ class FollowingServiceTest extends TestCase
         $this->followingService = $this->app->make(FollowingService::class);
         [$followerId, $userId] = factory(User::class, 2)->create()->pluck('id');
 
-        $this->following = new FollowingRequest();
-        $this->following->followerId = $followerId;
-        $this->following->userId = $userId;
+        $this->following = FollowingRequest::fromArray([
+            'follower_id' => $followerId,
+            'user_id' => $userId,
+        ]);
     }
 
     public function test_follows()
@@ -92,6 +93,11 @@ class FollowingServiceTest extends TestCase
         $followingThatNotExists->userId = $anotherUserId;
         $followingThatNotExists->followerId = $this->following->followerId;
 
-        $this->assertFalse($this->followingService->isFollows($followingThatNotExists));
+        $this->assertFalse($this->followingService->isFollows(
+            FollowingRequest::fromArray([
+                'user_id' => $anotherUserId,
+                'follower_id' => $this->following->followerId,
+            ])
+        ));
     }
 }

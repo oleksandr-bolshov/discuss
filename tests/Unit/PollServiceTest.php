@@ -49,12 +49,10 @@ class PollServiceTest extends TestCase
             'poll_option_id' => $this->pollOptionId,
         ];
 
-        $voteRequest = new VoteRequest();
-        $voteRequest->userId = $this->userId;
-        $voteRequest->pollId = $this->pollId;
-        $voteRequest->pollOptionId = $this->pollOptionId;
+        $voteData = $expected;
+        $voteData['poll_id'] = $this->pollId;
 
-        $this->pollService->vote($voteRequest);
+        $this->pollService->vote(VoteRequest::fromArray($voteData));
 
         $this->assertDatabaseHas('votes', $expected);
     }
@@ -70,12 +68,10 @@ class PollServiceTest extends TestCase
 
         $expectedVotesCount = DB::table('votes')->count();
 
-        $voteRequest = new VoteRequest();
-        $voteRequest->userId = $this->userId;
-        $voteRequest->pollId = $this->pollId;
-        $voteRequest->pollOptionId = $this->pollOptionId;
+        $voteData = $expected;
+        $voteData['poll_id'] = $this->pollId;
 
-        $this->pollService->vote($voteRequest);
+        $this->pollService->vote(VoteRequest::fromArray($voteData));
 
         $actualVotesCount = DB::table('votes')->count();
 
@@ -88,21 +84,24 @@ class PollServiceTest extends TestCase
             'poll_option_id' => $this->pollOptionId,
         ]);
 
-        $hasVotedRequest = new HasVotedRequest();
-        $hasVotedRequest->userId = $this->userId;
-        $hasVotedRequest->pollId = $this->pollId;
-
-        $this->assertTrue($this->pollService->hasVoted($hasVotedRequest));
+        $this->assertTrue($this->pollService->hasVoted(
+            HasVotedRequest::fromArray([
+                'user_id' => $this->userId,
+                'poll_id' => $this->pollId,
+            ])
+        ));
     }
 
     public function test_has_voted_when_false()
     {
         $anotherUserId = factory(User::class)->create()->id;
-        $voteThatNotExists = new HasVotedRequest();
-        $voteThatNotExists->userId = $anotherUserId;
-        $voteThatNotExists->pollId = $this->pollId;
 
-        $this->assertFalse($this->pollService->hasVoted($voteThatNotExists));
+        $this->assertFalse($this->pollService->hasVoted(
+            HasVotedRequest::fromArray([
+                'user_id' => $anotherUserId,
+                'poll_id' => $this->pollId,
+            ])
+        ));
     }
 
     public function test_retract()
@@ -113,11 +112,8 @@ class PollServiceTest extends TestCase
         ];
 
         factory(Vote::class)->create($expected);
-        $retractRequest = new RetractRequest();
-        $retractRequest->pollOptionId = $this->pollOptionId;
-        $retractRequest->userId = $this->userId;
 
-        $this->pollService->retract($retractRequest);
+        $this->pollService->retract(RetractRequest::fromArray($expected));
 
         $this->assertDeleted('votes', $expected);
     }
@@ -126,7 +122,7 @@ class PollServiceTest extends TestCase
     {
         $this->pollService->close($this->pollId);
 
-        $poll = DB::table('polls')->whereId($this->pollId)->first();
+        $poll = DB::table('polls')->where('id', $this->pollId)->first();
 
         $this->assertTrue($poll->end_datetime <= Carbon::now()->toDateTimeString());
     }

@@ -7,7 +7,7 @@ namespace Apathy\Discuss\Services;
 use Apathy\Discuss\Contracts\MessageService as MessageServiceContract;
 use Apathy\Discuss\DataObjects\Message\CreateMessageRequest;
 use Apathy\Discuss\DataObjects\Message\MessageResponse;
-use Apathy\Discuss\DataObjects\PaginationRequest;
+use Apathy\Discuss\DataObjects\PaginateByIdRequest;
 use Apathy\Discuss\Models\Message as MessageModel;
 use Apathy\Discuss\Traits\PaginationItemsToEntities;
 use Apathy\Discuss\Validators\Message as MessageValidator;
@@ -25,7 +25,7 @@ final class MessageService implements MessageServiceContract
         $this->validator = $validator;
     }
 
-    public function paginateMessagesByChatId(PaginationRequest $paginationRequest): Paginator {
+    public function paginateMessagesByChatId(PaginateByIdRequest $paginationRequest): Paginator {
         return $this->transformPaginationItems(
             MessageModel::whereChatId($paginationRequest->id)
                 ->orderBy($paginationRequest->sort, $paginationRequest->direction)

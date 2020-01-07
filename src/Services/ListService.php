@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Apathy\Discuss\Services;
 
 use Apathy\Discuss\Contracts\ListService as ListServiceContract;
-use Apathy\Discuss\DataObjects\PaginationRequest;
+use Apathy\Discuss\DataObjects\PaginateByIdRequest;
 use Apathy\Discuss\DataObjects\UserList\CreateUserListRequest;
 use Apathy\Discuss\DataObjects\UserList\MemberRequest;
 use Apathy\Discuss\DataObjects\UserList\SubscriberRequest;
@@ -37,7 +37,7 @@ final class ListService implements ListServiceContract
             ->toResponse();
     }
 
-    public function paginateByOwnerId(PaginationRequest $paginationRequest): Paginator {
+    public function paginateByOwnerId(PaginateByIdRequest $paginationRequest): Paginator {
         return $this->transformPaginationItems(
             UsersListModel::with('owner')
                 ->withCount('subscribers', 'members')
@@ -47,7 +47,7 @@ final class ListService implements ListServiceContract
         );
     }
 
-    public function paginateBySubscriberId(PaginationRequest $paginationRequest): Paginator {
+    public function paginateBySubscriberId(PaginateByIdRequest $paginationRequest): Paginator {
         return $this->transformPaginationItems(
             UsersListModel::with('owner')
                 ->withCount('subscribers', 'members')
@@ -59,7 +59,7 @@ final class ListService implements ListServiceContract
         );
     }
 
-    public function paginateByMemberId(PaginationRequest $paginationRequest): Paginator {
+    public function paginateByMemberId(PaginateByIdRequest $paginationRequest): Paginator {
         return $this->transformPaginationItems(
             UsersListModel::with('owner')
                 ->withCount('subscribers', 'members')

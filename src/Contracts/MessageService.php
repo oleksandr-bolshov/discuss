@@ -6,12 +6,12 @@ namespace Apathy\Discuss\Contracts;
 
 use Apathy\Discuss\DataObjects\Message\CreateMessageRequest;
 use Apathy\Discuss\DataObjects\Message\MessageResponse;
-use Apathy\Discuss\DataObjects\PaginationRequest;
+use Apathy\Discuss\DataObjects\PaginateByIdRequest;
 use Illuminate\Pagination\LengthAwarePaginator as Paginator;
 
 interface MessageService
 {
-    public function paginateMessagesByChatId(PaginationRequest $paginationRequest): Paginator;
+    public function paginateMessagesByChatId(PaginateByIdRequest $paginationRequest): Paginator;
 
     public function lastMessageByChatId(int $chatId): MessageResponse;
 

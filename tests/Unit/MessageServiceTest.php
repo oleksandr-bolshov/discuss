@@ -7,7 +7,7 @@ namespace Apathy\Discuss\Tests\Unit;
 use Apathy\Discuss\Contracts\MessageService;
 use Apathy\Discuss\DataObjects\Message\CreateMessageRequest;
 use Apathy\Discuss\DataObjects\Message\MessageResponse;
-use Apathy\Discuss\DataObjects\PaginationRequest;
+use Apathy\Discuss\DataObjects\PaginateByIdRequest;
 use Apathy\Discuss\Models\Chat as ChatModel;
 use Apathy\Discuss\Models\Message as MessageModel;
 use Apathy\Discuss\Models\User as UserModel;
@@ -41,10 +41,12 @@ class MessageServiceTest extends TestCase
     {
         factory(MessageModel::class, 20)->create();
 
-        $paginationRequest = new PaginationRequest();
-        $paginationRequest->id = $this->chatId;
+        $messages = $this->messageService->paginateMessagesByChatId(
+            PaginateByIdRequest::fromArray([
+                'id' => $this->chatId,
+            ])
+        );
 
-        $messages = $this->messageService->paginateMessagesByChatId($paginationRequest);
         $this->assertCount(15, $messages);
         foreach ($messages as $message) {
             $this->assertInstanceOf(MessageResponse::class, $message);
@@ -61,6 +63,7 @@ class MessageServiceTest extends TestCase
         ]);
 
         $latestMessage = $this->messageService->lastMessageByChatId($this->chatId);
+
         $this->assertEquals($latestCreatedAt->toDateTimeString(), $latestMessage->createdAt->toDateTimeString());
         foreach ($messages as $message) {
             $this->assertTrue($latestMessage->createdAt->greaterThanOrEqualTo($message->created_at));
@@ -76,12 +79,7 @@ class MessageServiceTest extends TestCase
             'is_read' => false,
         ];
 
-        $message = new CreateMessageRequest();
-        $message->chatId = $expected['chat_id'];
-        $message->userId = $expected['user_id'];
-        $message->text = $expected['text'];
-        $message->isRead = $expected['is_read'];
-        $this->messageService->create($message);
+        $this->messageService->create(CreateMessageRequest::fromArray($expected));
 
         $this->assertDatabaseHas('messages', $expected);
     }

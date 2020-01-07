@@ -4,10 +4,10 @@ namespace Apathy\Discuss\Tests\Unit;
 
 use Apathy\Discuss\Contracts\TweetService;
 use Apathy\Discuss\DataObjects\Image\CreateImageRequest;
-use Apathy\Discuss\DataObjects\PaginationRequest;
-use Apathy\Discuss\DataObjects\Poll\CreatePollOptionRequest;
+use Apathy\Discuss\DataObjects\PaginateByIdRequest;
 use Apathy\Discuss\DataObjects\Poll\CreatePollRequest;
 use Apathy\Discuss\DataObjects\Tweet\CreateTweetRequest;
+use Apathy\Discuss\DataObjects\Tweet\PaginateRequest;
 use Apathy\Discuss\DataObjects\Tweet\TweetResponse;
 use Apathy\Discuss\Enum\ListUserType;
 use Apathy\Discuss\Models\Image;
@@ -73,11 +73,12 @@ class TweetServiceTest extends TestCase
 
         factory(Tweet::class, 20)->create();
 
-        $paginationRequest = new PaginationRequest();
-        $paginationRequest->page = $page;
-        $paginationRequest->perPage = $perPage;
-
-        $tweets = $this->tweetService->paginate($paginationRequest);
+        $tweets = $this->tweetService->paginate(
+            PaginateRequest::fromArray([
+                'page' => $page,
+                'per_page' => $perPage,
+            ])
+        );
         $this->assertCount($perPage, $tweets);
         foreach ($tweets as $tweet) {
             $this->assertInstanceOf(TweetResponse::class, $tweet);
@@ -91,12 +92,13 @@ class TweetServiceTest extends TestCase
 
         factory(Tweet::class, 12)->create();
 
-        $paginationRequest = new PaginationRequest();
-        $paginationRequest->id = $this->userId;
-        $paginationRequest->page = $page;
-        $paginationRequest->perPage = $perPage;
-
-        $tweets = $this->tweetService->paginateByUserId($paginationRequest);
+        $tweets = $this->tweetService->paginateByUserId(
+            PaginateByIdRequest::fromArray([
+                'id' => $this->userId,
+                'page' => $page,
+                'per_page' => $perPage,
+            ])
+        );
         $this->assertCount($perPage, $tweets);
         foreach ($tweets as $tweet) {
             $this->assertInstanceOf(TweetResponse::class, $tweet);
@@ -121,11 +123,8 @@ class TweetServiceTest extends TestCase
             'author_id' => factory(User::class)->create()->id,
         ]);
 
-        $paginationRequest = new PaginationRequest();
-        $paginationRequest->id = $listId;
-
         $actualTweets = $this->tweetService
-            ->paginateByListId($paginationRequest)
+            ->paginateByListId(PaginateByIdRequest::fromArray(['id' => $listId]))
             ->toBase()
             ->sortBy('id')
             ->values();
@@ -149,46 +148,39 @@ class TweetServiceTest extends TestCase
             'end_datetime' => Carbon::create(2020),
         ];
 
-        $tweet = new CreateTweetRequest();
-        $tweet->text = $expectedTweet['text'];
-        $tweet->authorId = $expectedTweet['author_id'];
-        $tweet->inReplyToTweetId = factory(Tweet::class)->create()->id;
-
-        $poll = new CreatePollRequest();
-        $poll->title = $expectedPoll['title'];
-        $poll->endDatetime = $expectedPoll['end_datetime'];
-
-        $pollOptions = collect();
+        $pollOptions = [];
         foreach (range(0, 2) as $i) {
-            $pollOption = new CreatePollOptionRequest();
-            $pollOption->option = "fake option {$i}";
-
-            $pollOptions->push($pollOption);
+            $pollOptions[] = "fake option {$i}";
         }
-        $poll->options = $pollOptions;
-        $tweet->poll = $poll;
+        $pollData = $expectedPoll;
+        $pollData['options'] = $pollOptions;
 
-        $images = collect();
+        $tweetData = $expectedTweet;
+        $tweetData['poll'] = $pollData;
+
+        $images = [];
         foreach (range(0, 3) as $i) {
             $image = new CreateImageRequest();
             $image->path = "fake path {$i}";
-
-            $images->push($image);
+            $images[] = $image;
         }
-        $tweet->images = $images;
+        $tweetData['images'] = $images;
+        $tweetData['parent_id'] = factory(Tweet::class)->create()->id;
+
+        $tweet = CreateTweetRequest::fromArray($tweetData);
 
         $this->tweetService->create($tweet);
 
         $this->assertDatabaseHas('tweets', $expectedTweet);
         $this->assertDatabaseHas('polls', $expectedPoll);
 
-        foreach (range(0, $pollOptions->count() - 1) as $i) {
+        foreach (range(0, count($pollOptions) - 1) as $i) {
             $this->assertDatabaseHas('poll_options', [
                 'option' => "fake option {$i}",
             ]);
         }
 
-        foreach (range(0, $images->count() - 1) as $i) {
+        foreach (range(0, count($images) - 1) as $i) {
             $this->assertDatabaseHas('images', [
                 'path' => "fake path {$i}",
             ]);

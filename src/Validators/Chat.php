@@ -12,7 +12,7 @@ final class Chat extends Validator
     {
         $this->validate($request, [
             'membersIds' => 'required|array|size:2',
-            'membersIds.*' => 'required|exists:users,id',
+            'membersIds.*' => 'required|integer|exists:users,id',
         ]);
     }
 }

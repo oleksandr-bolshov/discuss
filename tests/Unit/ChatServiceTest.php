@@ -7,7 +7,7 @@ namespace Apathy\Discuss\Tests\Unit;
 use Apathy\Discuss\Contracts\ChatService;
 use Apathy\Discuss\DataObjects\Chat\CreateChatRequest;
 use Apathy\Discuss\DataObjects\Message\MessageResponse;
-use Apathy\Discuss\DataObjects\PaginationRequest;
+use Apathy\Discuss\DataObjects\PaginateByIdRequest;
 use Apathy\Discuss\Models\Chat as ChatModel;
 use Apathy\Discuss\Models\Message as MessageModel;
 use Apathy\Discuss\Models\User as UserModel;
@@ -38,10 +38,11 @@ class ChatServiceTest extends TestCase
                 $chat->messages()->saveMany([factory(MessageModel::class)->make()]);
             });
 
-        $paginationRequest = new PaginationRequest();
-        $paginationRequest->id = $userId;
-
-        $chats = $this->chatService->paginateChatsByUserId($paginationRequest)->toBase();
+        $chats = $this->chatService->paginateChatsByUserId(
+            PaginateByIdRequest::fromArray([
+                'id' => $userId,
+            ])
+        )->toBase();
 
         $lastChatsMessages = $chats->pluck('lastMessage');
 
@@ -55,15 +56,15 @@ class ChatServiceTest extends TestCase
     public function test_create()
     {
         $users = factory(UserModel::class, 2)->create();
-        $users = $users->map->toResponse();
+        $users = $users->map->toResponse()->pluck('id')->toArray();
 
-        $chat = new CreateChatRequest();
-        $chat->membersIds = $users->pluck('id');
-        $this->chatService->create($chat);
+        $this->chatService->create(CreateChatRequest::fromArray([
+            'members_ids' => $users
+        ]));
 
         foreach ($users as $user) {
             $this->assertDatabaseHas('chat_user', [
-                'user_id' => $user->id,
+                'user_id' => $user,
             ]);
         }
     }
@@ -71,12 +72,9 @@ class ChatServiceTest extends TestCase
     public function test_create_not_unique_chat()
     {
         $users = factory(UserModel::class, 2)->create();
-        $users = $users->map->toResponse()->pluck('id');
+        $users = $users->map->toResponse()->pluck('id')->toArray();
 
         $chatId = factory(ChatModel::class)->create()->id;
-
-        $chat = new CreateChatRequest();
-        $chat->membersIds = $users;
 
         DB::table('chat_user')->insert([
             [
@@ -92,7 +90,9 @@ class ChatServiceTest extends TestCase
 
         $expectedChatsCount = DB::table('chats')->count();
 
-        $this->chatService->create($chat);
+        $this->chatService->create(CreateChatRequest::fromArray([
+            'members_ids' => $users
+        ]));
 
         $actualChatsCount = DB::table('chats')->count();
 
@@ -102,12 +102,9 @@ class ChatServiceTest extends TestCase
     public function test_chat_exists()
     {
         $users = factory(UserModel::class, 2)->create();
-        $users = $users->map->toResponse()->pluck('id');
+        $users = $users->map->toResponse()->pluck('id')->toArray();
 
         $chatId = factory(ChatModel::class)->create()->id;
-
-        $chat = new CreateChatRequest();
-        $chat->membersIds = $users;
 
         DB::table('chat_user')->insert([
             [
@@ -121,15 +118,20 @@ class ChatServiceTest extends TestCase
             ],
         ]);
 
-        $this->assertTrue($this->chatService->chatExists($chat));
+        $this->assertTrue($this->chatService->chatExists(
+            CreateChatRequest::fromArray([
+                'members_ids' => $users,
+            ])
+        ));
     }
 
     public function test_chat_exists_when_false()
     {
-        $chat = new CreateChatRequest();
-        $chat->membersIds = collect([998, 999]);
-
-        $this->assertFalse($this->chatService->chatExists($chat));
+        $this->assertFalse($this->chatService->chatExists(
+            CreateChatRequest::fromArray([
+                'members_ids' => [998, 999],
+            ])
+        ));
     }
 
     public function test_delete()

@@ -27,9 +27,10 @@ class LikeServiceTest extends TestCase
         $userId = factory(User::class)->create()->id;
         $tweetId = factory(Tweet::class)->create()->id;
 
-        $this->like = new LikeRequest();
-        $this->like->tweetId = $tweetId;
-        $this->like->userId = $userId;
+        $this->like = LikeRequest::fromArray([
+            'tweet_id' => $tweetId,
+            'user_id' => $userId,
+        ]);
     }
 
     public function test_like()
@@ -86,10 +87,12 @@ class LikeServiceTest extends TestCase
     public function test_is_likes_when_false()
     {
         $anotherUserId = factory(User::class)->create()->id;
-        $likeThatNotExists = new LikeRequest();
-        $likeThatNotExists->userId = $anotherUserId;
-        $likeThatNotExists->tweetId = $this->like->tweetId;
 
-        $this->assertFalse($this->likeService->isLikes($likeThatNotExists));
+        $this->assertFalse($this->likeService->isLikes(
+            LikeRequest::fromArray([
+                'user_id' => $anotherUserId,
+                'tweet_id' => $this->like->tweetId,
+            ])
+        ));
     }
 }

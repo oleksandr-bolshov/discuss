@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Apathy\Discuss\Tests\Unit;
 
 use Apathy\Discuss\Contracts\ListService;
-use Apathy\Discuss\DataObjects\PaginationRequest;
+use Apathy\Discuss\DataObjects\PaginateByIdRequest;
 use Apathy\Discuss\DataObjects\UserList\CreateUserListRequest;
 use Apathy\Discuss\DataObjects\UserList\MemberRequest;
 use Apathy\Discuss\DataObjects\UserList\SubscriberRequest;
@@ -53,10 +53,11 @@ class ListServiceTest extends TestCase
     {
         factory(UserList::class, 20)->create();
 
-        $paginationRequest = new PaginationRequest();
-        $paginationRequest->id = $this->ownerId;
-
-        $lists = $this->listService->paginateByOwnerId($paginationRequest);
+        $lists = $this->listService->paginateByOwnerId(
+            PaginateByIdRequest::fromArray([
+                'id' => $this->ownerId,
+            ])
+        );
 
         $this->assertCount(15, $lists);
         foreach ($lists as $list) {
@@ -82,10 +83,11 @@ class ListServiceTest extends TestCase
 
         DB::table('list_user')->insert($listsSubscriber);
 
-        $paginationRequest = new PaginationRequest();
-        $paginationRequest->id = $subscriberId;
-
-        $actualLists = $this->listService->paginateBySubscriberId($paginationRequest);
+        $actualLists = $this->listService->paginateBySubscriberId(
+            PaginateByIdRequest::fromArray([
+                'id' => $subscriberId,
+            ])
+        );
 
         $this->assertEquals(
             $expectedLists->pluck('id', 'title'),
@@ -111,10 +113,11 @@ class ListServiceTest extends TestCase
 
         DB::table('list_user')->insert($listsMember);
 
-        $paginationRequest = new PaginationRequest();
-        $paginationRequest->id = $memberId;
-
-        $actualLists = $this->listService->paginateByMemberId($paginationRequest);
+        $actualLists = $this->listService->paginateByMemberId(
+            PaginateByIdRequest::fromArray([
+                'id' => $memberId,
+            ])
+        );
 
         $this->assertEquals(
             $expectedLists->pluck('id', 'title'),
@@ -129,11 +132,7 @@ class ListServiceTest extends TestCase
             'owner_id' => $this->ownerId,
         ];
 
-        $list = new CreateUserListRequest();
-        $list->title = $expected['title'];
-        $list->ownerId = $expected['owner_id'];
-
-        $this->listService->create($list);
+        $this->listService->create(CreateUserListRequest::fromArray($expected));
 
         $this->assertDatabaseHas('lists', $expected);
     }
@@ -148,15 +147,11 @@ class ListServiceTest extends TestCase
 
         $membersIds = factory(User::class, 3)->create([
             'first_name' => 'listMember',
-        ])->pluck('id');
+        ])->pluck('id')->toArray();
 
-        $list = new CreateUserListRequest();
-        $list->title = $expected['title'];
-        $list->description = $expected['description'];
-        $list->ownerId = $expected['owner_id'];
-        $list->membersIds = $membersIds;
-
-        $this->listService->create($list);
+        $this->listService->create(
+            CreateUserListRequest::fromArray($expected + ['members_ids' => $membersIds])
+        );
 
         $this->assertDatabaseHas('lists', $expected);
         foreach ($membersIds as $membersId) {
@@ -171,11 +166,12 @@ class ListServiceTest extends TestCase
         $listId = factory(UserList::class)->create()->id;
         $userId = factory(User::class)->create()->id;
 
-        $subscriberRequest = new SubscriberRequest();
-        $subscriberRequest->listId = $listId;
-        $subscriberRequest->subscriberId = $userId;
-
-        $this->listService->addSubscriber($subscriberRequest);
+        $this->listService->addSubscriber(
+            SubscriberRequest::fromArray([
+                'list_id' => $listId,
+                'subscriber_id' => $userId,
+            ])
+        );
 
         $this->assertDatabaseHas('list_user', [
             'user_id' => $userId,
@@ -194,13 +190,14 @@ class ListServiceTest extends TestCase
             'user_type' => ListUserType::SUBSCRIBER,
         ]);
 
-        $subscriberRequest = new SubscriberRequest();
-        $subscriberRequest->listId = $listId;
-        $subscriberRequest->subscriberId = $userId;
-
         $expectedSubscribersCount = DB::table('list_user')->count();
 
-        $this->listService->addSubscriber($subscriberRequest);
+        $this->listService->addSubscriber(
+            SubscriberRequest::fromArray([
+                'list_id' => $listId,
+                'subscriber_id' => $userId,
+            ])
+        );
 
         $actualSubscribersCount = DB::table('list_user')->count();
 
@@ -212,11 +209,12 @@ class ListServiceTest extends TestCase
         $listId = factory(UserList::class)->create()->id;
         $userId = factory(User::class)->create()->id;
 
-        $memberRequest = new MemberRequest();
-        $memberRequest->listId = $listId;
-        $memberRequest->memberId = $userId;
-
-        $this->listService->addMember($memberRequest);
+        $this->listService->addMember(
+            MemberRequest::fromArray([
+                'list_id' => $listId,
+                'member_id' => $userId,
+            ])
+        );
 
         $this->assertDatabaseHas('list_user', [
             'user_id' => $userId,
@@ -235,13 +233,14 @@ class ListServiceTest extends TestCase
             'user_type' => ListUserType::MEMBER,
         ]);
 
-        $memberRequest = new MemberRequest();
-        $memberRequest->listId = $listId;
-        $memberRequest->memberId = $userId;
-
         $expectedMembersCount = DB::table('list_user')->count();
 
-        $this->listService->addMember($memberRequest);
+        $this->listService->addMember(
+            MemberRequest::fromArray([
+                'list_id' => $listId,
+                'member_id' => $userId,
+            ])
+        );
 
         $actualMembersCount = DB::table('list_user')->count();
 
@@ -259,20 +258,51 @@ class ListServiceTest extends TestCase
             'user_type' => ListUserType::SUBSCRIBER,
         ]);
 
-        $subscriberRequest = new SubscriberRequest();
-        $subscriberRequest->listId = $listId;
-        $subscriberRequest->subscriberId = $userId;
-
-        $this->assertTrue($this->listService->hasSubscriber($subscriberRequest));
+        $this->assertTrue($this->listService->hasSubscriber(
+            SubscriberRequest::fromArray([
+                'list_id' => $listId,
+                'subscriber_id' => $userId,
+            ])
+        ));
     }
 
     public function test_has_subscriber_when_false()
     {
-        $subscriberRequest = new SubscriberRequest();
-        $subscriberRequest->listId = 999;
-        $subscriberRequest->subscriberId = 999;
+        $this->assertFalse($this->listService->hasSubscriber(
+            SubscriberRequest::fromArray([
+                'list_id' => 999,
+                'subscriber_id' => 999,
+            ])
+        ));
+    }
 
-        $this->assertFalse($this->listService->hasSubscriber($subscriberRequest));
+    public function test_has_member_when_true()
+    {
+        $listId = factory(UserList::class)->create()->id;
+        $userId = factory(User::class)->create()->id;
+
+        DB::table('list_user')->insert([
+            'list_id' => $listId,
+            'user_id' => $userId,
+            'user_type' => ListUserType::MEMBER,
+        ]);
+
+        $this->assertTrue($this->listService->hasMember(
+            MemberRequest::fromArray([
+                'list_id' => $listId,
+                'member_id' => $userId,
+            ])
+        ));
+    }
+
+    public function test_has_member_when_false()
+    {
+        $this->assertFalse($this->listService->hasMember(
+            MemberRequest::fromArray([
+                'list_id' => 999,
+                'member_id' => 999,
+            ])
+        ));
     }
 
     public function test_update()
@@ -286,11 +316,7 @@ class ListServiceTest extends TestCase
             'title' => 'updated title',
         ];
 
-        $list = new UpdateUserListRequest();
-        $list->id = $expected['id'];
-        $list->title = $expected['title'];
-
-        $this->listService->update($list);
+        $this->listService->update(UpdateUserListRequest::fromArray($expected));
 
         $this->assertDatabaseHas('lists', $expected);
     }
@@ -313,11 +339,12 @@ class ListServiceTest extends TestCase
             'user_type' => ListUserType::SUBSCRIBER,
         ]);
 
-        $subscriberRequest = new SubscriberRequest();
-        $subscriberRequest->listId = $listId;
-        $subscriberRequest->subscriberId = $userId;
-
-        $this->listService->removeSubscriber($subscriberRequest);
+        $this->listService->removeSubscriber(
+            SubscriberRequest::fromArray([
+                'list_id' => $listId,
+                'subscriber_id' => $userId,
+            ])
+        );
 
         $this->assertDeleted('list_user', [
             'user_id' => $userId,
@@ -336,11 +363,12 @@ class ListServiceTest extends TestCase
             'user_type' => ListUserType::MEMBER,
         ]);
 
-        $memberRequest = new MemberRequest();
-        $memberRequest->listId = $listId;
-        $memberRequest->memberId = $userId;
-
-        $this->listService->removeMember($memberRequest);
+        $this->listService->removeMember(
+            MemberRequest::fromArray([
+                'list_id' => $listId,
+                'member_id' => $userId,
+            ])
+        );
 
         $this->assertDeleted('list_user', [
             'user_id' => $userId,

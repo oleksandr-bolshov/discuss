@@ -22,7 +22,7 @@ final class Tweet extends Validator
             'poll.title' => 'required_with:poll|max:25',
             'poll.endDatetime' => 'required_with:poll|date',
             'poll.options' => 'required_with:poll|array|min:'.self::MIN_POLL_OPTIONS_AMOUNT,
-            'poll.options.*.option' => 'required_with:poll|max:25',
+            'poll.options.*' => 'required_with:poll|string|max:25',
         ]);
     }
 }
