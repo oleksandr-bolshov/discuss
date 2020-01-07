@@ -14,6 +14,7 @@ final class LikeRequest
         $request = new self();
         $request->userId = $data['user_id'];
         $request->tweetId = $data['tweet_id'];
+
         return $request;
     }
 }

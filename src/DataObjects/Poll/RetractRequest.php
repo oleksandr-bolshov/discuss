@@ -14,6 +14,7 @@ final class RetractRequest
         $request = new self();
         $request->userId = $data['user_id'];
         $request->pollOptionId = $data['poll_option_id'];
+
         return $request;
     }
 }

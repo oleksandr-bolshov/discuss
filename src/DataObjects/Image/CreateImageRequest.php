@@ -12,6 +12,7 @@ final class CreateImageRequest
     {
         $request = new self();
         $request->path = $data['path'];
+
         return $request;
     }
 }

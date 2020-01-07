@@ -32,7 +32,8 @@ final class UserService implements UserServiceContract
         return UserModel::withCount('followers')->findOrFail($id)->toResponse();
     }
 
-    public function paginateUsersWhoLikedByTweetId(PaginateByIdRequest $paginationRequest): Paginator {
+    public function paginateUsersWhoLikedByTweetId(PaginateByIdRequest $paginationRequest): Paginator
+    {
         return $this->transformPaginationItems(
             UserModel::withCount('followers')
                 ->whereHas('likes', fn (Builder $query) => $query->where('tweet_id', $paginationRequest->id))
@@ -41,7 +42,8 @@ final class UserService implements UserServiceContract
         );
     }
 
-    public function paginateFollowersByUserId(PaginateByIdRequest $paginationRequest): Paginator {
+    public function paginateFollowersByUserId(PaginateByIdRequest $paginationRequest): Paginator
+    {
         return $this->transformPaginationItems(
             UserModel::withCount('followers')
                 ->findOrFail($paginationRequest->id)
@@ -51,7 +53,8 @@ final class UserService implements UserServiceContract
         );
     }
 
-    public function paginateFollowingsByUserId(PaginateByIdRequest $paginationRequest): Paginator {
+    public function paginateFollowingsByUserId(PaginateByIdRequest $paginationRequest): Paginator
+    {
         return $this->transformPaginationItems(
             UserModel::withCount('followers')
                 ->findOrFail($paginationRequest->id)
@@ -61,7 +64,8 @@ final class UserService implements UserServiceContract
         );
     }
 
-    public function paginateSubscribersByListId(PaginateByIdRequest $paginationRequest): Paginator {
+    public function paginateSubscribersByListId(PaginateByIdRequest $paginationRequest): Paginator
+    {
         return $this->transformPaginationItems(
             UserModel::withCount('followers')
                 ->whereHas('listsWhereSubscriber', fn (Builder $query) => $query->whereListId($paginationRequest->id))
@@ -70,7 +74,8 @@ final class UserService implements UserServiceContract
         );
     }
 
-    public function paginateMembersByListId(PaginateByIdRequest $paginationRequest): Paginator {
+    public function paginateMembersByListId(PaginateByIdRequest $paginationRequest): Paginator
+    {
         return $this->transformPaginationItems(
             UserModel::withCount('followers')
                 ->whereHas('listsWhereMember', fn (Builder $query) => $query->whereListId($paginationRequest->id))

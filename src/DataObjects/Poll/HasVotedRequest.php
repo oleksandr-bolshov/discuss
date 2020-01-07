@@ -14,6 +14,7 @@ final class HasVotedRequest
         $request = new self();
         $request->userId = $data['user_id'];
         $request->pollId = $data['poll_id'];
+
         return $request;
     }
 }

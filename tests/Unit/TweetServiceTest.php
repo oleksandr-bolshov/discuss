@@ -5,7 +5,6 @@ namespace Apathy\Discuss\Tests\Unit;
 use Apathy\Discuss\Contracts\TweetService;
 use Apathy\Discuss\DataObjects\Image\CreateImageRequest;
 use Apathy\Discuss\DataObjects\PaginateByIdRequest;
-use Apathy\Discuss\DataObjects\Poll\CreatePollRequest;
 use Apathy\Discuss\DataObjects\Tweet\CreateTweetRequest;
 use Apathy\Discuss\DataObjects\Tweet\PaginateRequest;
 use Apathy\Discuss\DataObjects\Tweet\TweetResponse;

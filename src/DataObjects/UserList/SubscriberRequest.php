@@ -14,6 +14,7 @@ final class SubscriberRequest
         $request = new self();
         $request->listId = $data['list_id'];
         $request->subscriberId = $data['subscriber_id'];
+
         return $request;
     }
 }

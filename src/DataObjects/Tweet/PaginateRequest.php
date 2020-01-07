@@ -20,6 +20,7 @@ final class PaginateRequest implements Pagination
         $request->perPage = $data['per_page'] ?? $request->perPage;
         $request->sort = $data['sort'] ?? $request->sort;
         $request->direction = $data['direction'] ?? $request->direction;
+
         return $request;
     }
 }

@@ -16,6 +16,7 @@ final class VoteRequest
         $request->userId = $data['user_id'];
         $request->pollId = $data['poll_id'];
         $request->pollOptionId = $data['poll_option_id'];
+
         return $request;
     }
 }
