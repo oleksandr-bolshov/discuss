@@ -14,6 +14,7 @@ final class CreateChatRequest
     {
         $request = new self();
         $request->membersIds = collect($data['members_ids']);
+
         return $request;
     }
 }

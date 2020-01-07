@@ -16,6 +16,7 @@ final class UpdateUserListRequest
         $request->id = $data['id'];
         $request->title = $data['title'] ?? null;
         $request->description = $data['description'] ?? null;
+
         return $request;
     }
 }

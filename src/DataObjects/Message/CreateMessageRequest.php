@@ -18,6 +18,7 @@ final class CreateMessageRequest
         $request->userId = $data['user_id'];
         $request->text = $data['text'];
         $request->isRead = $data['is_read'];
+
         return $request;
     }
 }

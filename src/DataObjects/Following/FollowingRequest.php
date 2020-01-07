@@ -14,6 +14,7 @@ final class FollowingRequest
         $request = new self();
         $request->followerId = $data['follower_id'];
         $request->userId = $data['user_id'];
+
         return $request;
     }
 }

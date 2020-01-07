@@ -14,6 +14,7 @@ final class MemberRequest
         $request = new self();
         $request->listId = $data['list_id'];
         $request->memberId = $data['member_id'];
+
         return $request;
     }
 }

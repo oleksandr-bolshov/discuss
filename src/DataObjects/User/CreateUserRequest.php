@@ -22,6 +22,7 @@ final class CreateUserRequest
         $request->username = $data['username'];
         $request->password = $data['password'];
         $request->profileImage = $data['profile_image'] ?? null;
+
         return $request;
     }
 }
