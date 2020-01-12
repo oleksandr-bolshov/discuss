@@ -104,10 +104,14 @@ final class Tweet extends Model
             if ($parent) {
                 $tweet->inReplyToTweet = $parent->toResponse();
             }
+        } else {
+            $tweet->inReplyToTweet = null;
         }
 
         if ($this->withReplies) {
             $tweet->replies = $this->replies->map->toResponse()->toBase();
+        } else {
+            $tweet->replies = null;
         }
 
         return $tweet;
