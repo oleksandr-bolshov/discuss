@@ -31,6 +31,8 @@ final class ChatService implements ChatServiceContract
     public function paginateChatsByUserId(PaginateByIdRequest $paginationRequest): Paginator
     {
         $paginator = ChatModel::join('messages', 'chats.id', '=', 'messages.chat_id')
+            ->join('chat_user', 'chat_user.chat_id', '=', 'chats.id')
+            ->join('users', 'users.id', '=', 'chat_user.user_id')
             ->orderBy('messages.'.$paginationRequest->sort, $paginationRequest->direction)
             ->paginate($paginationRequest->perPage, ['*'], null, $paginationRequest->page);
 

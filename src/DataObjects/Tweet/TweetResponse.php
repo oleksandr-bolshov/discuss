@@ -14,7 +14,7 @@ final class TweetResponse
     public int $id;
     public string $text;
     public UserResponse $author;
-    public Collection $replies;
+    public ?Collection $replies;
     public int $repliesCount;
     public int $likesCount;
     public ?TweetResponse $inReplyToTweet;

@@ -103,11 +103,17 @@ final class Tweet extends Model
             $parent = $this->parent()->withCount('replies')->first();
             if ($parent) {
                 $tweet->inReplyToTweet = $parent->toResponse();
+            } else {
+                $tweet->inReplyToTweet = null;
             }
+        } else {
+            $tweet->inReplyToTweet = null;
         }
 
         if ($this->withReplies) {
-            $tweet->replies = $this->replies->map->toResponse()->toBase();
+            $tweet->replies = $this->replies()->withCount('replies')->get()->map->toResponse()->toBase();
+        } else {
+            $tweet->replies = null;
         }
 
         return $tweet;
